@@ -1,0 +1,148 @@
+﻿@page "/"
+
+@using System.Net.Http.Headers
+@using System.Net.Http.Json
+@using CloudService.Shared
+@using CloudService;
+@inject HttpClient Http
+
+<PageTitle>Upload Files and Send Email</PageTitle>
+
+<h1>Upload Files and Send Email</h1>
+
+<InputFile OnChange="@OnInputFileChange" multiple />
+<div class="form-group">
+    <br /><br />
+    <label for="emailInput">Email:</label>
+    <input type="email" id="emailInput" class="form-control" @bind="emailModel.To" />
+    <div class="invalid-feedback" style="display: block;">@emailValidationError</div>
+</div>
+
+<button class="btn btn-primary" @onclick="UploadFilesAndSendEmail">Send Email with Attached File</button>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+@code {
+    private int maxAllowedFiles = int.MaxValue;
+    private long maxFileSize = long.MaxValue;
+    private List<string> fileNames = new();
+    private List<StreamContent> fileContents = new();
+    private string errorMessage = null!;
+    private string successMessage = null!;
+    private EmailModel emailModel = new EmailModel();
+    private string emailValidationError = null!;
+    private List<BlobDto> files = new List<BlobDto>();
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        fileNames.Clear();
+        fileContents.Clear();
+        errorMessage = null!;
+        successMessage = null!;
+        emailValidationError = null!;
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (file.Name.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                fileNames.Add(file.Name);
+                // fileContents.Add(new StreamContent(file.OpenReadStream(maxFileSize)));
+                var content = new StreamContent(file.OpenReadStream(maxFileSize));
+
+                var blobDto = new BlobDto
+                {
+                    Name = file.Name,
+                    Content = content.ReadAsStream(),
+                    Date = DateTime.Now
+                };
+                
+                fileContents.Add(content);
+                files.Add(blobDto);
+            }
+            else
+            {
+                errorMessage = $"Invalid file: {file.Name}. Only .docx files are allowed.";
+            }
+        }
+    }
+
+    private async Task UploadFilesAndSendEmail()
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(emailModel.To) || !IsValidEmail(emailModel.To))
+            {
+                emailValidationError = "Please enter a valid email address.";
+                return;
+            }
+
+            emailModel.Subject = "File upload";
+            emailModel.Body = "File(s) uploaded successfully.";
+
+            var formData = new MultipartFormDataContent();
+
+            for (var i = 0; i < fileContents.Count; i++)
+            {
+                formData.Add(fileContents[i], "file", fileNames[i]);
+
+                formData.Add(new StringContent(fileNames[i]), "fileName");
+                formData.Add(new StringContent(fileContents[i].Headers.ContentLength.ToString()!), "fileSize");
+                formData.Add(new StringContent(files[i].Date.ToString("yyyy-MM-dd HH:mm:ss")), "fileDate");
+            }
+
+            var response = await Http.PostAsync("api/AzureBlob", formData);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var emailResponse = await Http.PostAsJsonAsync("https://sendemailfunctionapp123.azurewebsites.net/api/SendEmailWithUrl", emailModel);
+
+                if (emailResponse.IsSuccessStatusCode)
+                {
+                    successMessage = "File(s) uploaded and email sent successfully.";
+                }
+                else
+                {
+                    errorMessage = "Error sending email.";
+                }
+            }
+            else
+            {
+                errorMessage = "Error uploading files.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

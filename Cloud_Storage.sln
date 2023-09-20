@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud_Storage.Server", "Cloud_Storage\Server\Cloud_Storage.Server.csproj", "{F5C0FCF5-53D3-43B5-82B9-BD8EBCC2C91B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud_Storage.Client", "Cloud_Storage\Client\Cloud_Storage.Client.csproj", "{79CFB588-C146-47ED-B621-9292AAD50642}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud_Storage.Shared", "Cloud_Storage\Shared\Cloud_Storage.Shared.csproj", "{0A7C5E1C-C81B-47AB-A524-32976D959310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendEmailFunction", "SendEmailFunction\SendEmailFunction.csproj", "{5FE208E4-855F-4970-AB1C-026C1E51E010}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5C0FCF5-53D3-43B5-82B9-BD8EBCC2C91B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5C0FCF5-53D3-43B5-82B9-BD8EBCC2C91B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5C0FCF5-53D3-43B5-82B9-BD8EBCC2C91B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5C0FCF5-53D3-43B5-82B9-BD8EBCC2C91B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79CFB588-C146-47ED-B621-9292AAD50642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79CFB588-C146-47ED-B621-9292AAD50642}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79CFB588-C146-47ED-B621-9292AAD50642}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79CFB588-C146-47ED-B621-9292AAD50642}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A7C5E1C-C81B-47AB-A524-32976D959310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A7C5E1C-C81B-47AB-A524-32976D959310}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A7C5E1C-C81B-47AB-A524-32976D959310}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A7C5E1C-C81B-47AB-A524-32976D959310}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FE208E4-855F-4970-AB1C-026C1E51E010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FE208E4-855F-4970-AB1C-026C1E51E010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FE208E4-855F-4970-AB1C-026C1E51E010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FE208E4-855F-4970-AB1C-026C1E51E010}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1CF63DB-46D1-4C99-88EF-01F5D210098A}
+	EndGlobalSection
+EndGlobal
