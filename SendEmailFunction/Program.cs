@@ -6,7 +6,7 @@ var builder = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<SmtpClient>();
+        services.AddSingleton<ISmtpClient, SmtpClient>();
     });
 
 builder.Build().Run();

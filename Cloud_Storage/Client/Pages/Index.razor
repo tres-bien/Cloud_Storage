@@ -20,6 +20,33 @@
 
 <button class="btn btn-primary" @onclick="UploadFilesAndSendEmail">Send Email with Attached File</button>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Date</th>
+            <th>File Size</th>
+            <th>Content Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var file in files)
+        {
+            <tr>
+                <td>@file.Name</td>
+                <td>@file.Date.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@file.FileSize</td>
+                <td>@file.ContentType</td>
+                <td>
+                    <button @onclick="() => DownloadFile(file.Name!)">Download</button>
+                    <button @onclick="() => DeleteFile(file.Name!)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 @if (!string.IsNullOrWhiteSpace(errorMessage))
 {
     <div class="alert alert-danger">
@@ -44,6 +71,7 @@
     private EmailModel emailModel = new EmailModel();
     private string emailValidationError = null!;
     private List<BlobDto> files = new List<BlobDto>();
+    private string apiUrl = "/api/AzureBlob";
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -58,7 +86,6 @@
             if (file.Name.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
             {
                 fileNames.Add(file.Name);
-                // fileContents.Add(new StreamContent(file.OpenReadStream(maxFileSize)));
                 var content = new StreamContent(file.OpenReadStream(maxFileSize));
 
                 var blobDto = new BlobDto
@@ -107,7 +134,7 @@
                 formData.Add(new StringContent(files[i].Date.ToString("yyyy-MM-dd HH:mm:ss")), "fileDate");
             }
 
-            var response = await Http.PostAsync("api/AzureBlob", formData);
+            var response = await Http.PostAsync(apiUrl, formData);
 
             if (response.IsSuccessStatusCode)
             {
@@ -143,6 +170,55 @@
         catch
         {
             return false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFiles();
+    }
+
+    private async Task LoadFiles()
+    {
+        try
+        {
+            files = await Http.GetFromJsonAsync<List<BlobDto>>(apiUrl);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading files: {ex.Message}");
+        }
+    }
+
+    private async Task DownloadFile(string filename)
+    {
+        try
+        {
+            var response = await Http.GetStreamAsync($"{apiUrl}/filename?filename={filename}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading file: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteFile(string filename)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"{apiUrl}/filename?filename={filename}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadFiles();
+            }
+            else
+            {
+                Console.WriteLine($"Error deleting file: {response.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting file: {ex.Message}");
         }
     }
 }
